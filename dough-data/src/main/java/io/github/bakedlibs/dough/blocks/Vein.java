@@ -1,7 +1,11 @@
 package io.github.bakedlibs.dough.blocks;
 
-import java.util.LinkedList;
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.Deque;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.function.Predicate;
 
 import org.bukkit.block.Block;
@@ -45,23 +49,36 @@ public final class Vein {
      * @return A List of all Blocks
      */
     public static List<Block> find(Block b, int limit, Predicate<Block> predicate) {
-        List<Block> list = new LinkedList<>();
+        List<Block> list = new ArrayList<>(Math.max(0, limit));
         expand(b, list, limit, predicate);
         return list;
     }
 
     private static void expand(Block anchor, List<Block> list, int limit, Predicate<Block> predicate) {
-        if (list.size() >= limit) {
+        if (limit <= 0) {
             return;
         }
 
-        list.add(anchor);
+        Set<Block> visited = new HashSet<>(Math.max(16, limit * 2));
+        Deque<Block> queue = new ArrayDeque<>();
 
-        for (BlockFace face : faces) {
-            Block next = anchor.getRelative(face);
+        visited.add(anchor);
+        queue.add(anchor);
 
-            if (!list.contains(next) && predicate.test(next)) {
-                expand(next, list, limit, predicate);
+        while (!queue.isEmpty() && list.size() < limit) {
+            Block current = queue.removeLast();
+            list.add(current);
+
+            if (list.size() >= limit) {
+                break;
+            }
+
+            for (BlockFace face : faces) {
+                Block next = current.getRelative(face);
+
+                if (visited.add(next) && predicate.test(next)) {
+                    queue.add(next);
+                }
             }
         }
     }
