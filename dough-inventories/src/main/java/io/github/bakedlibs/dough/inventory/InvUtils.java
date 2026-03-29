@@ -27,7 +27,7 @@ public final class InvUtils {
      * @return Whether an empty slot exists
      */
     public static boolean hasEmptySlot(@Nonnull Inventory inv) {
-        return inv.firstEmpty() != 1;
+        return inv.firstEmpty() != -1;
     }
 
     /**
@@ -94,9 +94,7 @@ public final class InvUtils {
     }
 
     /**
-     * This method checks if an Item can fit into the specified slots.
-     * Note that this also checks {@link ItemStack#getAmount()}
-     * 
+     * This method checks if an Item can fit into the specified slots by looking for an empty slot.
      * If you do not specify any Slots, all Slots of the Inventory will be checked.
      *
      * @param inv
@@ -106,25 +104,23 @@ public final class InvUtils {
      * @param slots
      *            The Slots that shall be iterated over
      * 
-     * @return Whether the slots have space for the {@link ItemStack}
+     * @return Whether the slots have an empty slot for the {@link ItemStack}
      */
     public static boolean fits(@Nonnull Inventory inv, @Nonnull ItemStack item, int... slots) {
         if (!isItemAllowed(item.getType(), inv.getType())) {
             return false;
         }
 
+        ItemStack[] contents = inv.getContents();
+
         if (slots.length == 0) {
-            slots = IntStream.range(0, inv.getSize()).toArray();
+            return hasEmptySlot(inv);
         }
 
         for (int slot : slots) {
-            ItemStack stack = inv.getItem(slot);
+            ItemStack stack = contents[slot];
 
             if (stack == null || stack.getType() == Material.AIR) {
-                return true;
-            }
-
-            if (isValidStackSize(stack, item, inv) && ItemUtils.canStack(stack, item)) {
                 return true;
             }
         }
