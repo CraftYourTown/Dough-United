@@ -3,7 +3,7 @@
 before_install:
   - sdk install java 21-open
   - sdk use java 21-open
-  - sdk install maven
+  - sdk install gradle
 
 jdk:
   - openjdk21
