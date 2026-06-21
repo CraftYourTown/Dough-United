@@ -6,6 +6,7 @@
 **/target
 **/build/
 .gradle/
+.gradle-tmp/
 
 *.iml
 
